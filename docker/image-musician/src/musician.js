@@ -83,9 +83,19 @@ function createDgramSocket(instrument) {
 	// Msg
 	var message = Buffer.from('Je suis un ' + instrument.name + " -> " + instrument.sound);
 
-	// Send
-	socket.send(message, 0, message.length, port, multicastAddress, function(err, bytes) {
-		console.log('Sending');
-		socket.close();
+	// Send message each second
+	setInterval(function(){ 
+		emitSound(socket, message, port, multicastAddress);
+	}, 1000);
+}
+
+
+
+/*
+ * Send a message from a socket to a a specific port and address
+ */
+function emitSound(socket, message, port, address){
+	socket.send(message, 0, message.length, port, address, function(err, bytes) {
+		console.log("Sending message");
 	});
 }
