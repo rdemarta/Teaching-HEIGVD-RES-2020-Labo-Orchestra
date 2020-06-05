@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run -p 41234:41234 res/auditor
+docker run -p 2205:2205 res/auditor
