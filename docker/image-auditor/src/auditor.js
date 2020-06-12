@@ -6,6 +6,7 @@ const port = 41234;
 const Net = require('net'); // For TCP server
 const TCP_port = 2205;
 const TCP_server = new Net.Server();
+
 var moment = require('moment');
 var musicianMap = new Map();
 
@@ -18,7 +19,8 @@ socket.on('message', function(msg, source) {
 	console.log('Received: "' + msg + '" from ' + source.address + ':' + source.port);
 	
 	// Update musician map
-	musicianMap[msg['uuid']] = JSON.parse(msg);
+	var jsonMsg = JSON.parse(msg);
+	musicianMap.set(jsonMsg['uuid'], jsonMsg);
 });
 
 
@@ -35,8 +37,14 @@ TCP_server.on('connection', function(tcpClientSocket) {
     console.log('A new connection has been established.');
 	console.log('Sending all musicians that are playing.');
 
-    tcpClientSocket.write('<My list of musician>');
+	// Recreate output array by browsing our current map
+	var output = [];	
+	musicianMap.forEach(function(value, key, map) {
+		output.push(value);
+	});
 
+	// Send new array and close connection
+    tcpClientSocket.write(JSON.stringify(output));
 	tcpClientSocket.end();
 
     // When the client requests to end the TCP connection with the server, the server

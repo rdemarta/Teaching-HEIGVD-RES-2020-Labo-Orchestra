@@ -92,8 +92,8 @@ function createDgramSocket(instrument) {
 		var data = {
 			uuid : uniqueId,
 			instrument : instrument.name,
-			sound : instrument.sound,
-			timestamp : moment().format()
+			//sound : instrument.sound,
+			activeSince : moment().format()
 		};
 		var payload = JSON.stringify(data);
 		var message = new Buffer(payload);
