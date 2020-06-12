@@ -106,11 +106,11 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | How can we represent the system in an **architecture diagram**, which gives information both about the Docker containers, the communication protocols and the commands? |
 | | *Insert your diagram here...* |
 |Question | Who is going to **send UDP datagrams** and **when**? |
-| | *Enter your response here...* |
+| | C'est le musicien qui va envoyer des données en UDP. Il va envoyer des données chaque seconde durant toute sa durée de vie. |
 |Question | Who is going to **listen for UDP datagrams** and what should happen when a datagram is received? |
-| | *Enter your response here...* |
+| | C'est le serveur qui va écouter et recevoir les données UDP provenant des musicien. Quand les données d'un musicien sont reçues, il doit mettre à jour sa structure de données afin de mettre à jour l'entrée correspondante au musicien qui à envoyer les données, pour avoir une structure toujours à jour. De plus, le serveur doit supprimer de se structure de données, tous les musiciens dont il n'a pas reçu de données depuis 5sec |
 |Question | What **payload** should we put in the UDP datagrams? |
-| | *Enter your response here...* |
+| | l'UUID du musicien, son bruit et l'heure courante |
 |Question | What **data structures** do we need in the UDP sender and receiver? When will we update these data structures? When will we query these data structures? |
 | | *Enter your response here...* |
 
@@ -120,21 +120,28 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | In a JavaScript program, if we have an object, how can we **serialize it in JSON**? |
-| | *Enter your response here...*  |
+| | `JSON.stringify(<your_object>);` |
 |Question | What is **npm**?  |
-| | *Enter your response here...*  |
+| | NPM est le gestionnaire de dépendance de Node.js.  |
 |Question | What is the `npm install` command and what is the purpose of the `--save` flag?  |
-| | *Enter your response here...*  |
+| | Cette commande permet d'installer un package spécifique, celui-ci se retrouvera dans le dossier "node_modules". Le flag "--save" permet d'installer le package et directement mettre à jours les dependances dans le fichier "package.json".  |
 |Question | How can we use the `https://www.npmjs.com/` web site?  |
-| | *Enter your response here...*  |
+| | Ce site répertories les packages Nod.js disponibles. Ainsi, on peut rechercher un package, avoir des infos sur celui-ci et voir comment il fonctionne pour enfin l'installer.  |
 |Question | In JavaScript, how can we **generate a UUID** compliant with RFC4122? |
-| | *Enter your response here...*  |
+| | En utilisant la librairie recommandée [UUID](https://github.com/uuidjs/uuid), qui permet de générer des UUID selon la norme RFC4122.  |
 |Question | In Node.js, how can we execute a function on a **periodic** basis? |
-| | *Enter your response here...*  |
+| | En utilisant la fonction js [setInterval()](https://www.w3schools.com/jsref/met_win_setinterval.asp), qui prend en paramètre la fonction à exécutée, l'interval en ms, puis optionellement des paramètres à passer à la fonction  |
 |Question | In Node.js, how can we **emit UDP datagrams**? |
-| | *Enter your response here...*  |
+| | En utilisant la librairie accessible par défaut "dgram":
+	```js
+	var dgram = require('dgram');
+	var socket = dgram.createSocket('udp4');
+	s.send(message, 0, message.length, port, address, function(err, bytes) {
+	});
+	```
+ |
 |Question | In Node.js, how can we **access the command line arguments**? |
-| | *Enter your response here...*  |
+| | Les arguments sont récupérables dans le tableau: `process.argv`. |
 
 
 ## Task 3: package the "musician" app in a Docker image
