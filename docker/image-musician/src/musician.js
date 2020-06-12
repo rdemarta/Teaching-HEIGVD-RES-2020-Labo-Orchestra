@@ -21,6 +21,9 @@ var availableInstruments = [
 	}
 ];
 
+// Useful to transmit current time
+var moment = require('moment');
+
 // Fetch the command line arguments, remove 2 first (node and script name)
 var cmdArgs = process.argv.slice(2);
 
@@ -85,12 +88,12 @@ function createDgramSocket(instrument) {
 
 	// Send message each second
 	setInterval(function(){ 
-		// Msg
+		// Message
 		var data = {
 			uuid : uniqueId,
 			instrument : instrument.name,
 			sound : instrument.sound,
-			timestamp : Date.now()
+			timestamp : moment().format()
 		};
 		var payload = JSON.stringify(data);
 		var message = new Buffer(payload);
@@ -106,6 +109,6 @@ function createDgramSocket(instrument) {
  */
 function emitSound(socket, message, port, address){
 	socket.send(message, 0, message.length, port, address, function(err, bytes) {
-		console.log("Sending message");
+		console.log('Sent: "' + message + '"');
 	});
 }

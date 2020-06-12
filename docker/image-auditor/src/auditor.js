@@ -6,7 +6,8 @@ const port = 41234;
 const Net = require('net'); // For TCP server
 const TCP_port = 2205;
 const TCP_server = new Net.Server();
-
+var moment = require('moment');
+var musicianMap = new Map();
 
 socket.bind(port, function() {
 	console.log('Joining multicast group ' + multicastAddress);
@@ -14,8 +15,10 @@ socket.bind(port, function() {
 });
 
 socket.on('message', function(msg, source) {
-	//console.log('Data has arrived: ' + msg + '. Src IP: ' + source.address + '. Src port: ' + source.port);
 	console.log('Received: "' + msg + '" from ' + source.address + ':' + source.port);
+	
+	// Update musician map
+	musicianMap[msg['uuid']] = JSON.parse(msg);
 });
 
 
