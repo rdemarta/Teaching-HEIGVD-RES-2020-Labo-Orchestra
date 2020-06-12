@@ -9,5 +9,6 @@ socket.bind(port, function() {
 });
 
 socket.on('message', function(msg, source) {
-	console.log('Data has arrived: ' + msg + '. Src IP: ' + source.address + '. Src port: ' + source.port);
+	//console.log('Data has arrived: ' + msg + '. Src IP: ' + source.address + '. Src port: ' + source.port);
+	console.log('Received: "' + msg + '" from ' + source.address + ':' + source.port);
 });
