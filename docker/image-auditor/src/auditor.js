@@ -21,6 +21,15 @@ socket.on('message', function(msg, source) {
 	// Update musician map
 	var jsonMsg = JSON.parse(msg);
 	musicianMap.set(jsonMsg['uuid'], jsonMsg);
+	
+	// Delete musicians older than 5 seconds
+	musicianMap.forEach(function(value, key, map) {
+		console.log('Deleting ' + key);
+		if(moment().diff(value['activeSince'], 'seconds') > 5) {
+			//console.log('Deleting ' + key);
+			musician.delete(key);
+		}
+	});
 });
 
 
