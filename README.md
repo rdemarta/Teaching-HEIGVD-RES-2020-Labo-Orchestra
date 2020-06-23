@@ -132,14 +132,7 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | In Node.js, how can we execute a function on a **periodic** basis? |
 | | En utilisant la fonction js [setInterval()](https://www.w3schools.com/jsref/met_win_setinterval.asp), qui prend en paramètre la fonction à exécutée, l'interval en ms, puis optionellement des paramètres à passer à la fonction  |
 |Question | In Node.js, how can we **emit UDP datagrams**? |
-| | En utilisant la librairie accessible par défaut "dgram":
-	```js
-	var dgram = require('dgram');
-	var socket = dgram.createSocket('udp4');
-	s.send(message, 0, message.length, port, address, function(err, bytes) {
-	});
-	```
- |
+| | En utilisant la librairie accessible par défaut "dgram":<br/>`var dgram = require('dgram');`<br/>`var socket = dgram.createSocket('udp4');`<br/>`s.send(message, 0, message.length, port, address, function(err, bytes) { });` |
 |Question | In Node.js, how can we **access the command line arguments**? |
 | | Les arguments sont récupérables dans le tableau: `process.argv`. |
 
@@ -149,15 +142,15 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | How do we **define and build our own Docker image**?|
-| | *Enter your response here...*  |
+| | On utilise la commande `docker build <nom_image> .` en mettant le Dockerfile dans le dossier courant |
 |Question | How can we use the `ENTRYPOINT` statement in our Dockerfile?  |
-| | *Enter your response here...*  |
+| | Il faut mettre `ENTRYPOINT ["node", "<nom_script>"]` dans notre Dockerfile. Cela va permettre d'utiliser les arguments docker avec le script spécifié. |
 |Question | After building our Docker image, how do we use it to **run containers**?  |
-| | *Enter your response here...*  |
+| | On utilise la commande `docker run res/musician <arg1> <arg2> <...>` en saisissant les arguments désirés à la fin. |
 |Question | How do we get the list of all **running containers**?  |
-| | *Enter your response here...*  |
+| | Avec la commande `docker ps`.  |
 |Question | How do we **stop/kill** one running container?  |
-| | *Enter your response here...*  |
+| | Avec `docker kill <container>` ou `docker stop <container>` |
 |Question | How can we check that our running containers are effectively sending UDP datagrams?  |
 | | *Enter your response here...*  |
 
@@ -167,11 +160,11 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | ---  |
 |Question | With Node.js, how can we listen for UDP datagrams in a multicast group? |
-| | *Enter your response here...*  |
+| | On créé un socket et on écoute sur celui-ci:<br/>`const dgram = require('dgram');`<br/>`const socket = dgram.createSocket('udp4');`<br/>`const multicastAddress = '239.255.0.0';`<br/>`socket.bind(1234, function() { socket.addMembership('239.255.0.0'); });`<br/>`socket.on('message', function(msg, source) { /* Receive message */});`  |
 |Question | How can we use the `Map` built-in object introduced in ECMAScript 6 to implement a **dictionary**?  |
-| | *Enter your response here...* |
+| | Dans notre cas, on utilise de uuid comme clef et un objet JSON comme valeur:<br/>`var musicianMap = new Map();`<br/>`var jsonMsg = JSON.parse(msg);`</br>`	musicianMap.set(jsonMsg['uuid'], jsonMsg);` |
 |Question | How can we use the `Moment.js` npm module to help us with **date manipulations** and formatting?  |
-| | *Enter your response here...* |
+| | Par exemple, pour prendre la date et heure actuelle:<br/>`var moment = require('moment');`<br/>`var now = moment().format();`|
 |Question | When and how do we **get rid of inactive players**?  |
 | | *Enter your response here...* |
 |Question | How do I implement a **simple TCP server** in Node.js?  |
