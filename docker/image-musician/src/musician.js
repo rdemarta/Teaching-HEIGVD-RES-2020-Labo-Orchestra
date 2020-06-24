@@ -1,53 +1,21 @@
-var availableInstruments = [
-	{
-		name: "piano",
-		sound: "ti-ta-ti"
-	},
-	{
-		name: "trumpet",
-		sound: "pouet"
-	},
-	{
-		name: "flute",
-		sound: "trulu"
-	},
-	{
-		name: "violin",
-		sound: "gzi-gzi"
-	},
-	{
-		name: "drum",
-		sound: "boum-boum"
-	}
-];
+// Available instruments mapped with their respective sound
+const availableInstruments = new Map();
+availableInstruments.set('piano', 'ti-ta-ti');
+availableInstruments.set('trumpet', 'pouet');
+availableInstruments.set('flute', 'trulu');
+availableInstruments.set('violin', 'gzi-gzi');
+availableInstruments.set('drum', 'boum-boum');
 
 // Fetch the command line arguments, remove 2 first (node and script name)
 var cmdArgs = process.argv.slice(2);
 
 
-// Must have ONE argument (the instrument name)
-if(cmdArgs.length != 1){
-	displayArgsError(availableInstruments);
-}else{
-	var instrument = null;
-
-	// Fetch the instrument passed in argument from the available instrument list object
-	for(var i = 0; i < availableInstruments.length; ++i){
-		if(availableInstruments[i].name == cmdArgs[0]){
-			instrument = availableInstruments[i];
-			break;
-		}
-	}
-
-	// Valid instrument
-	if(instrument != null){
-		createDgramSocket(instrument);
-	}
-	// Invalid instrument
-	else{
-		displayArgsError(availableInstruments);
-	}
-}
+// Must have ONE argument (the instrument name) and the instrument must be known
+if(cmdArgs.length == 1 && availableInstruments.has(cmdArgs[0])) {
+	createDgramSocket(cmdArgs[0]);
+} else {
+	displayArgsError();
+}	
 
 
 
@@ -55,19 +23,17 @@ if(cmdArgs.length != 1){
 /* 
  * Display en invalid argument error, and show the available instruments
  */
-function displayArgsError(availableInstruments){
-	var errorMsg = "Invalid argument => [";
-	for(var i = 0; i < availableInstruments.length; ++i){
-		if(i){
-			errorMsg += ", ";
-		}
-		errorMsg += availableInstruments[i].name;
+function displayArgsError(){
+	var errorMsg = "Invalid argument. Use [";
+	
+	var keys = [...availableInstruments.keys()];
+	for(var i = 0; i < keys.length; ++i) {
+		errorMsg += (i == 0 ? "" : " | ") + keys[i];		
 	}
-	errorMsg += "]";
-
+	errorMsg += "].";
+	
 	console.log(errorMsg);
 }
-
 
 
 
@@ -98,6 +64,7 @@ function createDgramSocket(instrument) {
 		emitSound(socket, message, port, multicastAddress);
 	}, 1000);
 }
+
 
 
 
