@@ -80,24 +80,21 @@ function createDgramSocket(instrument) {
 	const socket = dgram.createSocket('udp4');
 	const multicastAddress = '239.255.0.0';
 	const port = 41234;
+	const interval = 1000; // [ms]
 	const uuid = require('uuid'); // To create unique id
 	const moment = require('moment'); // Useful to transmit current time
 	
-	const uniqueId = uuid.v4(); // Musician's unique ID
-	const activeSince = moment().format();
+	// Message
+	const payload = JSON.stringify({
+		uuid : uuid.v4(),
+		instrument : instrument.name,
+		sound : instrument.sound,
+		activeSince : moment().format()
+	});
+	const message = new Buffer(payload);
 
-	// Send message each second
+	// Send message at constant interval
 	setInterval(function(){ 
-		// Message
-		var data = {
-			uuid : uniqueId,
-			instrument : instrument.name,
-			sound : instrument.sound,
-			activeSince : activeSince
-		};
-		var payload = JSON.stringify(data);
-		var message = new Buffer(payload);
-		
 		emitSound(socket, message, port, multicastAddress);
 	}, 1000);
 }
