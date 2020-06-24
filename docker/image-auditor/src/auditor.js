@@ -2,39 +2,57 @@ const dgram = require('dgram');
 const socket = dgram.createSocket('udp4');
 const multicastAddress = '239.255.0.0';
 const port = 41234;
+const musicianTimeout = 5; // [s]
 
 const Net = require('net'); // For TCP server
 const TCP_port = 2205;
 const TCP_server = new Net.Server();
 
-var moment = require('moment');
-var musicianMap = new Map();
+const moment = require('moment');
+const instrumentSounds = new Map;
+let musicianMap = new Map();
 
+/*
+ * Join multicast group
+ */
 socket.bind(port, function() {
 	console.log('Joining multicast group ' + multicastAddress);
 	socket.addMembership(multicastAddress);
 });
 
+/*
+ * Listen message from multicast
+ */
 socket.on('message', function(msg, source) {
 	console.log('Received: "' + msg + '" from ' + source.address + ':' + source.port);
 	
-	// Update musician map
 	var jsonMsg = JSON.parse(msg);
-	musicianMap.set(jsonMsg['uuid'], jsonMsg);
 	
-	// Delete musicians older than 5 seconds
-	musicianMap.forEach(function(value, key, map) {
-		console.log('Deleting ' + key);
-		if(moment().diff(value['activeSince'], 'seconds') > 5) {
-			//console.log('Deleting ' + key);
-			musician.delete(key);
-		}
+	// Update musician map
+	musicianMap.set(jsonMsg['uuid'], {
+		instrument: jsonMsg['instrument'],
+		activeSince: jsonMsg['activeSince'],
+		lastSound: moment().format()
 	});
+	
+	// Delete too old musicians
+	wipeInactiveMusicians()
 });
 
-
+/*
+ * Check for inactive musicians and deletes them
+ */
+function wipeInactiveMusicians() {
+	musicianMap.forEach(function(value, key, map) {
+		if(moment().diff(value['lastSound'], 'seconds') > musicianTimeout) {
+			console.log('Deleting ' + key);
+			musicianMap.delete(key);
+		}
+	});
+}
 
 /* ---------------  TCP SERVER ------------------- */
+
 
 // The server listens to a socket for a client to make a connection request.
 TCP_server.listen(TCP_port, function() {
@@ -45,11 +63,18 @@ TCP_server.listen(TCP_port, function() {
 TCP_server.on('connection', function(tcpClientSocket) {
     console.log('A new connection has been established.');
 	console.log('Sending all musicians that are playing.');
+	
+	// Delete too old musicians
+	wipeInactiveMusicians()
 
 	// Recreate output array by browsing our current map
 	var output = [];	
 	musicianMap.forEach(function(value, key, map) {
-		output.push(value);
+		output.push({
+			uuid: key,
+			instrument: value['instrument'],
+			activeSince: value['activeSince']
+		});
 	});
 
 	// Send new array and close connection

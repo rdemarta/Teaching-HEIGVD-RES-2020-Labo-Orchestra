@@ -9,7 +9,6 @@ availableInstruments.set('drum', 'boum-boum');
 // Fetch the command line arguments, remove 2 first (node and script name)
 var cmdArgs = process.argv.slice(2);
 
-
 // Must have ONE argument (the instrument name) and the instrument must be known
 if(cmdArgs.length == 1 && availableInstruments.has(cmdArgs[0])) {
 	createDgramSocket(cmdArgs[0]);
@@ -17,11 +16,8 @@ if(cmdArgs.length == 1 && availableInstruments.has(cmdArgs[0])) {
 	displayArgsError();
 }	
 
-
-
-
 /* 
- * Display en invalid argument error, and show the available instruments
+ * Display an invalid argument error, and show the available instruments
  */
 function displayArgsError(){
 	var errorMsg = "Invalid argument. Use [";
@@ -34,9 +30,6 @@ function displayArgsError(){
 	
 	console.log(errorMsg);
 }
-
-
-
 
 /* 
  * Create a datagram socket and send UDP message
@@ -53,7 +46,7 @@ function createDgramSocket(instrument) {
 	// Message
 	const payload = JSON.stringify({
 		uuid : uuid.v4(),
-		instrument : instrument.name,
+		instrument : instrument,
 		sound : instrument.sound,
 		activeSince : moment().format()
 	});
@@ -64,9 +57,6 @@ function createDgramSocket(instrument) {
 		emitSound(socket, message, port, multicastAddress);
 	}, 1000);
 }
-
-
-
 
 /*
  * Send a message from a socket to a a specific port and address
