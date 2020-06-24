@@ -21,11 +21,9 @@ var availableInstruments = [
 	}
 ];
 
-// Useful to transmit current time
-var moment = require('moment');
-
 // Fetch the command line arguments, remove 2 first (node and script name)
 var cmdArgs = process.argv.slice(2);
+
 
 // Must have ONE argument (the instrument name)
 if(cmdArgs.length != 1){
@@ -82,9 +80,11 @@ function createDgramSocket(instrument) {
 	const socket = dgram.createSocket('udp4');
 	const multicastAddress = '239.255.0.0';
 	const port = 41234;
+	const uuid = require('uuid'); // To create unique id
+	const moment = require('moment'); // Useful to transmit current time
 	
-	const uuidv1 = require('uuid/v1');
-	var uniqueId = uuidv1(); // Musician's unique ID
+	const uniqueId = uuid.v4(); // Musician's unique ID
+	const activeSince = moment().format();
 
 	// Send message each second
 	setInterval(function(){ 
@@ -92,8 +92,8 @@ function createDgramSocket(instrument) {
 		var data = {
 			uuid : uniqueId,
 			instrument : instrument.name,
-			//sound : instrument.sound,
-			activeSince : moment().format()
+			sound : instrument.sound,
+			activeSince : activeSince
 		};
 		var payload = JSON.stringify(data);
 		var message = new Buffer(payload);
