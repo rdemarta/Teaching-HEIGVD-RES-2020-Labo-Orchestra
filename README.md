@@ -152,7 +152,7 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | How do we **stop/kill** one running container?  |
 | | Avec `docker kill <container>` ou `docker stop <container>` |
 |Question | How can we check that our running containers are effectively sending UDP datagrams?  |
-| | En allant sniffer le réseau avec un logiciel comme wireshark. Sinon on peut simplement afficher les messages envoyés par les musiciens ou reçu par l'auditeur.  |
+| | En allant sniffer le réseau avec un logiciel comme wireshark. Sinon on peut aussi voir le traffique UDP sur le réseau en utilisant TCPDump. Ou encore, on peut simplement afficher les messages envoyés par les musiciens ou reçu par l'auditeur.  |
 
 
 ## Task 4: implement an "auditor" Node.js application
