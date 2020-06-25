@@ -110,9 +110,9 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | Who is going to **listen for UDP datagrams** and what should happen when a datagram is received? |
 | | C'est le serveur qui va écouter et recevoir les données UDP provenant des musicien. Quand les données d'un musicien sont reçues, il doit mettre à jour sa structure de données afin de mettre à jour l'entrée correspondante au musicien qui à envoyer les données, pour avoir une structure toujours à jour. De plus, le serveur doit supprimer de se structure de données, tous les musiciens dont il n'a pas reçu de données depuis 5sec |
 |Question | What **payload** should we put in the UDP datagrams? |
-| | l'UUID du musicien, son bruit et l'heure courante |
+| | l'UUID du musicien, son instrument / son et l'heure courante pour le activeSince |
 |Question | What **data structures** do we need in the UDP sender and receiver? When will we update these data structures? When will we query these data structures? |
-| | *Enter your response here...* |
+| | **Emetteur:** Nous avons besoin d'une Map contenant les instruments disponibles, qui sera modifiée si l'on veut ajouter un instrument à notre application. **Receveur:** Nous avons besoin d'une Map (musicianMap) qui contiendra de manière unique (via UUID), tous les musiciens qui sont entrain de jouer. Elle va être mise à jour à chaque fois qu'un message est recu. De plus il va falloir supprimer les anciens musicians (qui ne jouent plus) après avoir update la Map et aussi quand on recoit un message TCP |
 
 
 ## Task 2: implement a "musician" Node.js application
@@ -152,7 +152,7 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | How do we **stop/kill** one running container?  |
 | | Avec `docker kill <container>` ou `docker stop <container>` |
 |Question | How can we check that our running containers are effectively sending UDP datagrams?  |
-| | *Enter your response here...*  |
+| | En allant sniffer le réseau avec un logiciel comme wireshark. Sinon on peut simplement afficher les messages envoyés par les musiciens ou reçu par l'auditeur.  |
 
 
 ## Task 4: implement an "auditor" Node.js application
@@ -166,9 +166,29 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 |Question | How can we use the `Moment.js` npm module to help us with **date manipulations** and formatting?  |
 | | Par exemple, pour prendre la date et heure actuelle:<br/>`var moment = require('moment');`<br/>`var now = moment().format();`|
 |Question | When and how do we **get rid of inactive players**?  |
-| | *Enter your response here...* |
+| | Nous devons supprimer les musiciens inactifs à chaque fois (apres) qu'on ait mis à jour notre structure de donnée. Aussi, nous devons le faire quand quelqu'un se connecte en TCP, avant de lui envoyer les musiciens actifs. Pour ce faire il suffit de parcourir notre Map de musiciens et si la différence entre le temps courant et le dernier son émis par le musicien est plus grand que 5 sec, on le supprime de la map. |
 |Question | How do I implement a **simple TCP server** in Node.js?  |
-| | *Enter your response here...* |
+| | 
+```js
+const Net = require('net');
+const TCP_port = 2205;
+const TCP_server = new Net.Server();
+// The server listens to a socket for a client to make a connection request.
+TCP_server.listen(TCP_port, function() {
+});
+
+// When a client requests a connection with the server, the server creates a new socket dedicated to that client.
+TCP_server.on('connection', function(tcpClientSocket) {
+    // When the client requests to end the TCP connection with the server, the server
+    tcpClientSocket.on('end', function() {
+    });
+
+    // Don't forget to catch error, for your own sake.
+    tcpClientSocket.on('error', function(err) {
+    });
+});
+```
+|
 
 
 ## Task 5: package the "auditor" app in a Docker image
@@ -176,7 +196,7 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | How do we validate that the whole system works, once we have built our Docker image? |
-| | *Enter your response here...* |
+| | On peut lancer un auditor avec: `docker run -p 2205:2205 res/auditor`, puis on run un musicien qui joue au piano: `docker run res/musician piano`, puis un qui joue de la batterie: `docker run res/musician drum`. Ensuite, on se connecte en TCP avec telnet à l'adresse de l'auditeur et son port: `telnet 172.17.0.2 2205` la nous devrions recevoir un JSON contenant nos deux musiciens entrain de jouer. Pour finir, nous allons tuer le container qui joue de la batterie puis, attendre 5 secondes et relancer une connection TCP sur l'auditeur en telenet. A ce moment, nous devrions recevoir dans le JSON seulement le musicien jouant au piano. Notre système fonctionne donc entièrement. Si nous ne voulons pas tester nous-même, nous pouvons lancer le script `validate.sh` et voir que cela passe aussi tous les tests. |
 
 
 ## Constraints

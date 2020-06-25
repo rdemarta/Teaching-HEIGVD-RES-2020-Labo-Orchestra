@@ -9,7 +9,6 @@ const TCP_port = 2205;
 const TCP_server = new Net.Server();
 
 const moment = require('moment');
-const instrumentSounds = new Map;
 let musicianMap = new Map();
 
 /*
@@ -29,7 +28,8 @@ socket.on('message', function(msg, source) {
 	var jsonMsg = JSON.parse(msg);
 	
 	// Update musician map
-	musicianMap.set(jsonMsg['uuid'], {
+	musicianMap.set(jsonMsg['uuid'], 
+	{
 		instrument: jsonMsg['instrument'],
 		activeSince: jsonMsg['activeSince'],
 		lastSound: moment().format()
