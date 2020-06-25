@@ -104,15 +104,15 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | --- | --- |
 |Question | How can we represent the system in an **architecture diagram**, which gives information both about the Docker containers, the communication protocols and the commands? |
-| | *Insert your diagram here...* |
+| | Remarque: les adresses IP représentées sur le diagramme correspondent au cas où seuls ces containers sont démarrés (l'Auditor en premier puis les Musician). <br/>![image](images/diagram.png) |
 |Question | Who is going to **send UDP datagrams** and **when**? |
-| | *Enter your response here...* |
+| | C'est le musicien qui va envoyer des données en UDP. Il va envoyer des données chaque seconde durant toute sa durée de vie. |
 |Question | Who is going to **listen for UDP datagrams** and what should happen when a datagram is received? |
-| | *Enter your response here...* |
+| | C'est le serveur qui va écouter et recevoir les données UDP provenant des musicien. Quand les données d'un musicien sont reçues, il doit mettre à jour sa structure de données afin de mettre à jour l'entrée correspondante au musicien qui à envoyer les données, pour avoir une structure toujours à jour. De plus, le serveur doit supprimer de se structure de données, tous les musiciens dont il n'a pas reçu de données depuis 5sec |
 |Question | What **payload** should we put in the UDP datagrams? |
-| | *Enter your response here...* |
+| | l'UUID du musicien, son instrument / son et l'heure courante pour le activeSince |
 |Question | What **data structures** do we need in the UDP sender and receiver? When will we update these data structures? When will we query these data structures? |
-| | *Enter your response here...* |
+| | **Emetteur:** Nous avons besoin d'une Map contenant les instruments disponibles, qui sera modifiée si l'on veut ajouter un instrument à notre application. **Receveur:** Nous avons besoin d'une Map (musicianMap) qui contiendra de manière unique (via UUID), tous les musiciens qui sont entrain de jouer. Elle va être mise à jour à chaque fois qu'un message est recu. De plus il va falloir supprimer les anciens musicians (qui ne jouent plus) après avoir update la Map et aussi quand on recoit un message TCP |
 
 
 ## Task 2: implement a "musician" Node.js application
@@ -120,21 +120,21 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | In a JavaScript program, if we have an object, how can we **serialize it in JSON**? |
-| | *Enter your response here...*  |
+| | `JSON.stringify(<your_object>);` |
 |Question | What is **npm**?  |
-| | *Enter your response here...*  |
+| | NPM est le gestionnaire de dépendance de Node.js.  |
 |Question | What is the `npm install` command and what is the purpose of the `--save` flag?  |
-| | *Enter your response here...*  |
+| | Cette commande permet d'installer un package spécifique, celui-ci se retrouvera dans le dossier "node_modules". Le flag "--save" permet d'installer le package et directement mettre à jours les dependances dans le fichier "package.json".  |
 |Question | How can we use the `https://www.npmjs.com/` web site?  |
-| | *Enter your response here...*  |
+| | Ce site répertories les packages Nod.js disponibles. Ainsi, on peut rechercher un package, avoir des infos sur celui-ci et voir comment il fonctionne pour enfin l'installer.  |
 |Question | In JavaScript, how can we **generate a UUID** compliant with RFC4122? |
-| | *Enter your response here...*  |
+| | En utilisant la librairie recommandée [UUID](https://github.com/uuidjs/uuid), qui permet de générer des UUID selon la norme RFC4122.  |
 |Question | In Node.js, how can we execute a function on a **periodic** basis? |
-| | *Enter your response here...*  |
+| | En utilisant la fonction js [setInterval()](https://www.w3schools.com/jsref/met_win_setinterval.asp), qui prend en paramètre la fonction à exécutée, l'interval en ms, puis optionellement des paramètres à passer à la fonction  |
 |Question | In Node.js, how can we **emit UDP datagrams**? |
-| | *Enter your response here...*  |
+| | En utilisant la librairie accessible par défaut "dgram":<br/>`var dgram = require('dgram');`<br/>`var socket = dgram.createSocket('udp4');`<br/>`s.send(message, 0, message.length, port, address, function(err, bytes) { });` |
 |Question | In Node.js, how can we **access the command line arguments**? |
-| | *Enter your response here...*  |
+| | Les arguments sont récupérables dans le tableau: `process.argv`. |
 
 
 ## Task 3: package the "musician" app in a Docker image
@@ -142,17 +142,17 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | How do we **define and build our own Docker image**?|
-| | *Enter your response here...*  |
+| | On utilise la commande `docker build <nom_image> .` en mettant le Dockerfile dans le dossier courant |
 |Question | How can we use the `ENTRYPOINT` statement in our Dockerfile?  |
-| | *Enter your response here...*  |
+| | Il faut mettre `ENTRYPOINT ["node", "<nom_script>"]` dans notre Dockerfile. Cela va permettre d'utiliser les arguments docker avec le script spécifié. |
 |Question | After building our Docker image, how do we use it to **run containers**?  |
-| | *Enter your response here...*  |
+| | On utilise la commande `docker run res/musician <arg1> <arg2> <...>` en saisissant les arguments désirés à la fin. |
 |Question | How do we get the list of all **running containers**?  |
-| | *Enter your response here...*  |
+| | Avec la commande `docker ps`.  |
 |Question | How do we **stop/kill** one running container?  |
-| | *Enter your response here...*  |
+| | Avec `docker kill <container>` ou `docker stop <container>` |
 |Question | How can we check that our running containers are effectively sending UDP datagrams?  |
-| | *Enter your response here...*  |
+| | En allant sniffer le réseau avec un logiciel comme wireshark. Sinon on peut aussi voir le traffique UDP sur le réseau en utilisant TCPDump. Ou encore, on peut simplement afficher les messages envoyés par les musiciens ou reçu par l'auditeur.  |
 
 
 ## Task 4: implement an "auditor" Node.js application
@@ -160,15 +160,35 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | ---  |
 |Question | With Node.js, how can we listen for UDP datagrams in a multicast group? |
-| | *Enter your response here...*  |
+| | On créé un socket et on écoute sur celui-ci:<br/>`const dgram = require('dgram');`<br/>`const socket = dgram.createSocket('udp4');`<br/>`const multicastAddress = '239.255.0.0';`<br/>`socket.bind(1234, function() { socket.addMembership('239.255.0.0'); });`<br/>`socket.on('message', function(msg, source) { /* Receive message */});`  |
 |Question | How can we use the `Map` built-in object introduced in ECMAScript 6 to implement a **dictionary**?  |
-| | *Enter your response here...* |
+| | Dans notre cas, on utilise de uuid comme clef et un objet JSON comme valeur:<br/>`var musicianMap = new Map();`<br/>`var jsonMsg = JSON.parse(msg);`</br>`	musicianMap.set(jsonMsg['uuid'], jsonMsg);` |
 |Question | How can we use the `Moment.js` npm module to help us with **date manipulations** and formatting?  |
-| | *Enter your response here...* |
+| | Par exemple, pour prendre la date et heure actuelle:<br/>`var moment = require('moment');`<br/>`var now = moment().format();`|
 |Question | When and how do we **get rid of inactive players**?  |
-| | *Enter your response here...* |
+| | Nous devons supprimer les musiciens inactifs à chaque fois (apres) qu'on ait mis à jour notre structure de donnée. Aussi, nous devons le faire quand quelqu'un se connecte en TCP, avant de lui envoyer les musiciens actifs. Pour ce faire il suffit de parcourir notre Map de musiciens et si la différence entre le temps courant et le dernier son émis par le musicien est plus grand que 5 sec, on le supprime de la map. |
 |Question | How do I implement a **simple TCP server** in Node.js?  |
-| | *Enter your response here...* |
+| | 
+```js
+const Net = require('net');
+const TCP_port = 2205;
+const TCP_server = new Net.Server();
+// The server listens to a socket for a client to make a connection request.
+TCP_server.listen(TCP_port, function() {
+});
+
+// When a client requests a connection with the server, the server creates a new socket dedicated to that client.
+TCP_server.on('connection', function(tcpClientSocket) {
+    // When the client requests to end the TCP connection with the server, the server
+    tcpClientSocket.on('end', function() {
+    });
+
+    // Don't forget to catch error, for your own sake.
+    tcpClientSocket.on('error', function(err) {
+    });
+});
+```
+|
 
 
 ## Task 5: package the "auditor" app in a Docker image
@@ -176,7 +196,7 @@ When you connect to the TCP interface of the **Auditor**, you should receive an 
 | #  | Topic |
 | ---  | --- |
 |Question | How do we validate that the whole system works, once we have built our Docker image? |
-| | *Enter your response here...* |
+| | On peut lancer un auditor avec: `docker run -p 2205:2205 res/auditor`, puis on run un musicien qui joue au piano: `docker run res/musician piano`, puis un qui joue de la batterie: `docker run res/musician drum`. Ensuite, on se connecte en TCP avec telnet à l'adresse de l'auditeur et son port: `telnet 172.17.0.2 2205` la nous devrions recevoir un JSON contenant nos deux musiciens entrain de jouer. Pour finir, nous allons tuer le container qui joue de la batterie puis, attendre 5 secondes et relancer une connection TCP sur l'auditeur en telenet. A ce moment, nous devrions recevoir dans le JSON seulement le musicien jouant au piano. Notre système fonctionne donc entièrement. Si nous ne voulons pas tester nous-même, nous pouvons lancer le script `validate.sh` et voir que cela passe aussi tous les tests. |
 
 
 ## Constraints
